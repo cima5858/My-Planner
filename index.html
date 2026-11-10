@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Little Planner 🌷</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8f5;
+      color: #4b4240;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    h1 { color: #d78c9b; }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px #00000010;
+    }
+    input, button {
+      padding: 12px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 15px;
+    }
+    input[type="text"] {
+      width: 90%;
+    }
+    button {
+      background: #e9a8b5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    li {
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      overflow-wrap: anywhere;
+    }
+    .done {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+    .delete {
+      background: #ddd;
+      color: #555;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌷 My Little Planner</h1>
+  <p>Every little step counts ♡</p>
+
+  <div class="card">
+    <h2>✨ 添加新任务</h2>
+
+    <input id="taskInput" type="text"
+           placeholder="今天想完成什么？">
+
+    <p>📅 截止日期</p>
+    <input id="dateInput" type="date">
+
+    <br><br>
+    <button onclick="addTask()">＋ 添加任务</button>
+
+    <h2>📝 我的任务</h2>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(
+      localStorage.getItem("myTasks") || "[]"
+    );
+
+    function saveTasks() {
+      localStorage.setItem("myTasks", JSON.stringify(tasks));
+    }
+
+    function addTask() {
+      const text = document.getElementById("taskInput").value.trim();
+      const date = document.getElementById("dateInput").value;
+
+      if (!text || !date) {
+        alert("请填写任务和日期哦！");
+        return;
+      }
+
+      tasks.push({
+        text: text,
+        date: date,
+        done: false
+      });
+
+      saveTasks();
+      renderTasks();
+
+      document.getElementById("taskInput").value = "";
+      document.getElementById("dateInput").value = "";
+    }
+
+    function toggleTask(index) {
+      tasks[index].done = !tasks[index].done;
+      saveTasks();
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+
+      tasks.sort((a, b) => a.date.localeCompare(b.date));
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+        checkbox.onchange = () => toggleTask(index);
+
+        const label = document.createElement("span");
+        label.textContent = " " + task.date + " · " + task.text;
+        if (task.done) label.className = "done";
+
+        const del = document.createElement("button");
+        del.textContent = "删除";
+        del.className = "delete";
+        del.onclick = () => deleteTask(index);
+
+        li.append(checkbox, label, del);
+        list.appendChild(li);
+      });
+    }
+
+    renderTasks();
+  </script>
+
+</body>
+</html>
